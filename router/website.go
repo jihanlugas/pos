@@ -1,6 +1,7 @@
 package router
 
 import (
+	"github.com/jihanlugas/pos/validator"
 	"github.com/labstack/echo/v4"
 	//"github.com/jihanlugas/pos/controller"
 	"github.com/labstack/echo/v4/middleware"
@@ -9,7 +10,7 @@ import (
 
 func websiteRouter() *echo.Echo {
 	e := echo.New()
-	//e.Validator = controller.Validate
+	e.Validator = validator.Validate
 	e.HTTPErrorHandler = httpErrorHandler
 	e.Use(middleware.RecoverWithConfig(middleware.RecoverConfig{
 		DisableStackAll:   true, // config.Env == config.PRODUCTION

@@ -1,15 +1,20 @@
 package router
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/jihanlugas/pos/app/authentication"
+	"github.com/jihanlugas/pos/config"
 	_ "github.com/jihanlugas/pos/docs"
+	"github.com/jihanlugas/pos/response"
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
+	"net/http"
 )
 
 func Init() *echo.Echo {
 	router := websiteRouter()
-	//checkToken := checkTokenMiddleware()
+	checkToken := checkTokenMiddleware()
 
 	//userController := controller.UserComposer()
 	//
@@ -24,7 +29,7 @@ func Init() *echo.Echo {
 
 	router.GET("/swg/*", echoSwagger.WrapHandler)
 
-	router.POST("/sign-in", userHandler.SignIn)
+	router.POST("/sign-in", userHandler.SignIn, checkToken)
 	router.GET("/sign-out", userHandler.SignOut)
 	router.POST("/sign-up", userHandler.SignUp)
 	router.GET("/refresh-token", userHandler.RefreshToken)
@@ -35,47 +40,47 @@ func Init() *echo.Echo {
 }
 
 func httpErrorHandler(err error, c echo.Context) {
-	//var errorResponse *response.Response
-	//code := http.StatusInternalServerError
-	//switch e := err.(type) {
-	//case *echo.HTTPError:
-	//	// Handle pada saat URL yang di request tidak ada. atau ada kesalahan server.
-	//	code = e.Code
-	//	errorResponse = &response.Response{
-	//		Status:  false,
-	//		Message: fmt.Sprintf("%v", e.Message),
-	//		Payload: map[string]interface{}{},
-	//		Code:    code,
-	//	}
-	//case *response.Response:
-	//	errorResponse = e
-	//default:
-	//	// Handle error dari panic
-	//	code = http.StatusInternalServerError
-	//	if config.Debug {
-	//		errorResponse = &response.Response{
-	//			Status:  false,
-	//			Message: err.Error(),
-	//			Payload: map[string]interface{}{},
-	//			Code:    http.StatusInternalServerError,
-	//		}
-	//	} else {
-	//		errorResponse = &response.Response{
-	//			Status:  false,
-	//			Message: "Internal server error",
-	//			Payload: map[string]interface{}{},
-	//			Code:    http.StatusInternalServerError,
-	//		}
-	//	}
-	//}
-	//
-	//js, err := json.Marshal(errorResponse)
-	//if err == nil {
-	//	_ = c.Blob(code, echo.MIMEApplicationJSONCharsetUTF8, js)
-	//} else {
-	//	b := []byte("{error: true, message: \"unresolved error\"}")
-	//	_ = c.Blob(code, echo.MIMEApplicationJSONCharsetUTF8, b)
-	//}
+	var errorResponse *response.Response
+	code := http.StatusInternalServerError
+	switch e := err.(type) {
+	case *echo.HTTPError:
+		// Handle pada saat URL yang di request tidak ada. atau ada kesalahan server.
+		code = e.Code
+		errorResponse = &response.Response{
+			Status:  false,
+			Message: fmt.Sprintf("%v", e.Message),
+			Payload: map[string]interface{}{},
+			Code:    code,
+		}
+	case *response.Response:
+		errorResponse = e
+	default:
+		// Handle error dari panic
+		code = http.StatusInternalServerError
+		if config.Debug {
+			errorResponse = &response.Response{
+				Status:  false,
+				Message: err.Error(),
+				Payload: map[string]interface{}{},
+				Code:    http.StatusInternalServerError,
+			}
+		} else {
+			errorResponse = &response.Response{
+				Status:  false,
+				Message: "Internal server error",
+				Payload: map[string]interface{}{},
+				Code:    http.StatusInternalServerError,
+			}
+		}
+	}
+
+	js, err := json.Marshal(errorResponse)
+	if err == nil {
+		_ = c.Blob(code, echo.MIMEApplicationJSONCharsetUTF8, js)
+	} else {
+		b := []byte("{error: true, message: \"unresolved error\"}")
+		_ = c.Blob(code, echo.MIMEApplicationJSONCharsetUTF8, b)
+	}
 }
 
 func checkTokenMiddleware() echo.MiddlewareFunc {
