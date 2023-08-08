@@ -1,9 +1,16 @@
 package authentication
 
-import "github.com/labstack/echo/v4"
+import (
+	"github.com/labstack/echo/v4"
+	"net/http"
+)
 
 type Handler struct {
 	AuthenticationUsecase Usecase
+}
+
+func AuthenticationHandler() Handler {
+	return Handler{}
 }
 
 // SignIn Sign in user
@@ -16,7 +23,9 @@ type Handler struct {
 // @Failure      500  {object}  response.Response
 // @Router /sign-in [post]
 func (h Handler) SignIn(c echo.Context) error {
-	return nil
+	//tes := h.AuthenticationUsecase.Tes(c)
+
+	return c.String(http.StatusOK, "tes")
 }
 
 // SignOut Sign out user

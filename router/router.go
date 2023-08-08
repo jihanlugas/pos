@@ -25,14 +25,14 @@ func Init() *echo.Echo {
 	//router.GET("/sign-out", userController.SignOut)
 	//router.GET("/refresh-token", userController.RefreshToken, checkToken)
 
-	userHandler := authentication.Handler{}
+	userHandler := authentication.AuthenticationHandler()
 
 	router.GET("/swg/*", echoSwagger.WrapHandler)
 
-	router.POST("/sign-in", userHandler.SignIn, checkToken)
+	router.POST("/sign-in", userHandler.SignIn)
 	router.GET("/sign-out", userHandler.SignOut)
 	router.POST("/sign-up", userHandler.SignUp)
-	router.GET("/refresh-token", userHandler.RefreshToken)
+	router.GET("/refresh-token", userHandler.RefreshToken, checkToken)
 	router.GET("/reset-password", userHandler.ResetPassword)
 
 	return router
