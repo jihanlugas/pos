@@ -1,7 +1,7 @@
 package request
 
 import (
-	"github.com/jihanlugas/pos-old/config"
+	"github.com/jihanlugas/pos/config"
 )
 
 type Paging struct {
