@@ -16,6 +16,27 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Ping"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ようこそ、美しい世界へ",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/refresh-token": {
             "get": {
                 "security": [
@@ -32,7 +53,6 @@ const docTemplate = `{
                 "tags": [
                     "Authentication"
                 ],
-                "summary": "To do refresh token",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -60,7 +80,6 @@ const docTemplate = `{
                 "tags": [
                     "Authentication"
                 ],
-                "summary": "Sign in a user",
                 "parameters": [
                     {
                         "description": "json req body",
@@ -99,7 +118,6 @@ const docTemplate = `{
                 "tags": [
                     "Authentication"
                 ],
-                "summary": "Sign out a user",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -127,7 +145,47 @@ const docTemplate = `{
                 "tags": [
                     "Authentication"
                 ],
-                "summary": "Sign Up a user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

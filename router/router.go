@@ -3,9 +3,14 @@ package router
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/jihanlugas/pos/app/app"
 	"github.com/jihanlugas/pos/app/authentication"
+	"github.com/jihanlugas/pos/app/user"
 	"github.com/jihanlugas/pos/config"
+	"github.com/jihanlugas/pos/constant"
+	"github.com/jihanlugas/pos/db"
 	_ "github.com/jihanlugas/pos/docs"
+	"github.com/jihanlugas/pos/model"
 	"github.com/jihanlugas/pos/response"
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
@@ -25,15 +30,26 @@ func Init() *echo.Echo {
 	//router.GET("/sign-out", userController.SignOut)
 	//router.GET("/refresh-token", userController.RefreshToken, checkToken)
 
-	userHandler := authentication.AuthenticationHandler()
+	authenticationRepo := authentication.NewAuthenticationRepository()
+	userRepo := user.NewUserRepository()
+
+	authenticationRepoUsecase := authentication.NewAuthenticationUsecase(authenticationRepo)
+	userRepoUsecase := user.NewUserUsecase(userRepo)
+
+	authenticationHandler := authentication.AuthenticationHandler(authenticationRepoUsecase)
+	userHandler := user.UserHandler(userRepoUsecase)
 
 	router.GET("/swg/*", echoSwagger.WrapHandler)
+	router.GET("/", app.Ping)
 
-	router.POST("/sign-in", userHandler.SignIn)
-	router.GET("/sign-out", userHandler.SignOut)
-	router.POST("/sign-up", userHandler.SignUp)
-	router.GET("/refresh-token", userHandler.RefreshToken, checkToken)
-	router.GET("/reset-password", userHandler.ResetPassword)
+	router.POST("/sign-in", authenticationHandler.SignIn)
+	router.GET("/sign-out", authenticationHandler.SignOut)
+	router.POST("/sign-up", authenticationHandler.SignUp)
+	router.GET("/refresh-token", authenticationHandler.RefreshToken, checkToken)
+	router.GET("/reset-password", authenticationHandler.ResetPassword)
+
+	user := router.Group("/user")
+	user.GET("/:id", userHandler.GetById)
 
 	return router
 
@@ -86,27 +102,27 @@ func httpErrorHandler(err error, c echo.Context) {
 func checkTokenMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			//var err error
-			//
-			//userLogin, err := controller.ExtractClaims(c.Request().Header.Get(config.HeaderAuthName))
-			//if err != nil {
-			//	return response.ErrorForce(http.StatusUnauthorized, err.Error(), response.Payload{}).SendJSON(c)
-			//}
-			//
-			//conn, closeConn := db.GetConnection()
-			//defer closeConn()
-			//
-			//var user model.User
-			//err = conn.Where("id = ? ", userLogin.UserID).First(&user).Error
-			//if err != nil {
-			//	return response.ErrorForce(http.StatusUnauthorized, "Token Expired!", response.Payload{}).SendJSON(c)
-			//}
-			//
-			//if user.PassVersion != userLogin.PassVersion {
-			//	return response.ErrorForce(http.StatusUnauthorized, "Token Expired~", response.Payload{}).SendJSON(c)
-			//}
-			//
-			//c.Set(constant.TokenUserContext, userLogin)
+			var err error
+
+			userLogin, err := authentication.ExtractClaims(c.Request().Header.Get(config.HeaderAuthName))
+			if err != nil {
+				return response.ErrorForce(http.StatusUnauthorized, err.Error(), response.Payload{}).SendJSON(c)
+			}
+
+			conn, closeConn := db.GetConnection()
+			defer closeConn()
+
+			var user model.User
+			err = conn.Where("id = ? ", userLogin.UserID).First(&user).Error
+			if err != nil {
+				return response.ErrorForce(http.StatusUnauthorized, "Token Expired!", response.Payload{}).SendJSON(c)
+			}
+
+			if user.PassVersion != userLogin.PassVersion {
+				return response.ErrorForce(http.StatusUnauthorized, "Token Expired~", response.Payload{}).SendJSON(c)
+			}
+
+			c.Set(constant.TokenUserContext, userLogin)
 			return next(c)
 		}
 	}

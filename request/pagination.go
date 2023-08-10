@@ -29,6 +29,10 @@ func (p *Paging) SetPage(page int) {
 	p.Page = page
 }
 
+func (p *Paging) Tes(page int) {
+	p.Page = page
+}
+
 type IPaging interface {
 	GetPage() int
 	GetLimit() int

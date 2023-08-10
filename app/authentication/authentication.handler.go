@@ -6,15 +6,16 @@ import (
 )
 
 type Handler struct {
-	AuthenticationUsecase Usecase
+	usecase Usecase
 }
 
-func AuthenticationHandler() Handler {
-	return Handler{}
+func AuthenticationHandler(usecase Usecase) Handler {
+	return Handler{
+		usecase: usecase,
+	}
 }
 
 // SignIn Sign in user
-// @Summary Sign in a user
 // @Tags Authentication
 // @Accept json
 // @Produce json
@@ -23,13 +24,11 @@ func AuthenticationHandler() Handler {
 // @Failure      500  {object}  response.Response
 // @Router /sign-in [post]
 func (h Handler) SignIn(c echo.Context) error {
-	//tes := h.AuthenticationUsecase.Tes(c)
-
-	return c.String(http.StatusOK, "tes")
+	tes := h.usecase.Tes(c)
+	return c.String(http.StatusOK, tes)
 }
 
 // SignOut Sign out user
-// @Summary Sign out a user
 // @Tags Authentication
 // @Accept json
 // @Produce json
@@ -41,8 +40,7 @@ func (h Handler) SignOut(c echo.Context) error {
 	return nil
 }
 
-// SignIn Sign Up user
-// @Summary Sign Up a user
+// SignUp
 // @Tags Authentication
 // @Accept json
 // @Produce json
@@ -54,9 +52,8 @@ func (h Handler) SignUp(c echo.Context) error {
 	return nil
 }
 
-// RefreshToken godoc
+// RefreshToken
 // @Tags Authentication
-// @Summary To do refresh token
 // @Security BearerAuth
 // @Accept json
 // @Produce json
