@@ -1,6 +1,6 @@
-package authentication
+package user
 
-type Repository interface {
+type AuthenticationRepository interface {
 	//GetById() string
 }
 
@@ -11,6 +11,6 @@ type authenticationRepository struct {
 //	return "Get By Id"
 //}
 
-func NewAuthenticationRepository() Repository {
+func NewAuthenticationRepository() AuthenticationRepository {
 	return authenticationRepository{}
 }

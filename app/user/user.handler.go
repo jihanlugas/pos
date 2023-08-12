@@ -3,7 +3,6 @@ package user
 import (
 	"errors"
 	"github.com/jihanlugas/pos/app/app"
-	"github.com/jihanlugas/pos/app/authentication"
 	"github.com/jihanlugas/pos/request"
 	"github.com/jihanlugas/pos/response"
 	"github.com/labstack/echo/v4"
@@ -62,7 +61,7 @@ func (h Handler) GetById(c echo.Context) error {
 func (h Handler) Create(c echo.Context) error {
 	var err error
 
-	loginUser, err := authentication.GetUserLoginInfo(c)
+	loginUser, err := GetUserLoginInfo(c)
 	if err != nil {
 		return response.Error(http.StatusBadRequest, "error validation", response.ValidationError(err)).SendJSON(c)
 	}

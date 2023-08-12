@@ -1,4 +1,4 @@
-package authentication
+package user
 
 import (
 	"github.com/jihanlugas/pos/request"
@@ -7,12 +7,12 @@ import (
 	"net/http"
 )
 
-type Handler struct {
-	usecase Usecase
+type AuthenticationHandler struct {
+	usecase AuthenticationUsecase
 }
 
-func AuthenticationHandler(usecase Usecase) Handler {
-	return Handler{
+func NewAuthenticationHandler(usecase AuthenticationUsecase) AuthenticationHandler {
+	return AuthenticationHandler{
 		usecase: usecase,
 	}
 }
@@ -25,20 +25,27 @@ func AuthenticationHandler(usecase Usecase) Handler {
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
 // @Router /sign-in [post]
-func (h Handler) SignIn(c echo.Context) error {
+func (h AuthenticationHandler) SignIn(c echo.Context) error {
 	var err error
 
 	req := new(request.Signin)
 	if err = c.Bind(req); err != nil {
-		return response.Error(http.StatusBadRequest, "error validation", response.ValidationError(err)).SendJSON(c)
+		return response.Error(http.StatusBadRequest, err.Error(), response.Payload{}).SendJSON(c)
 	}
 
-	if err = c.Validate(req); err != nil {
-		return response.Error(http.StatusBadRequest, "error validation", response.ValidationError(err)).SendJSON(c)
+	err = c.Validate(req)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, err.Error(), response.ValidationError(err)).SendJSON(c)
 	}
 
-	err = h.usecase.SignIn(req)
-	return response.Success(http.StatusOK, "success", response.Payload{}).SendJSON(c)
+	token, err := h.usecase.SignIn(req)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, err.Error(), response.Payload{}).SendJSON(c)
+	}
+
+	return response.Success(http.StatusOK, "success", response.Payload{
+		"token": token,
+	}).SendJSON(c)
 }
 
 // SignOut Sign out user
@@ -49,7 +56,7 @@ func (h Handler) SignIn(c echo.Context) error {
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
 // @Router /sign-out [post]
-func (h Handler) SignOut(c echo.Context) error {
+func (h AuthenticationHandler) SignOut(c echo.Context) error {
 	return nil
 }
 
@@ -61,7 +68,7 @@ func (h Handler) SignOut(c echo.Context) error {
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
 // @Router /sign-up [post]
-func (h Handler) SignUp(c echo.Context) error {
+func (h AuthenticationHandler) SignUp(c echo.Context) error {
 	return nil
 }
 
@@ -73,10 +80,10 @@ func (h Handler) SignUp(c echo.Context) error {
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
 // @Router /refresh-token [get]
-func (h Handler) RefreshToken(c echo.Context) error {
+func (h AuthenticationHandler) RefreshToken(c echo.Context) error {
 	return nil
 }
 
-func (h Handler) ResetPassword(c echo.Context) error {
+func (h AuthenticationHandler) ResetPassword(c echo.Context) error {
 	return nil
 }

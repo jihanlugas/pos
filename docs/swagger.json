@@ -241,21 +241,33 @@
     "definitions": {
         "request.CreateUser": {
             "type": "object",
+            "required": [
+                "email",
+                "fullname",
+                "noHp",
+                "passwd",
+                "username"
+            ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 200
                 },
                 "fullname": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 80
                 },
                 "noHp": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 20
                 },
                 "passwd": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 200
                 },
                 "username": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 20
                 }
             }
         },

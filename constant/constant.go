@@ -6,7 +6,7 @@ package constant
 // 24 string
 const (
 	TokenUserContext = "usr"
-	TokenPayloadLen  = 120
+	TokenContentLen  = 4
 	FormatDateLayout = "2006-01-02"
 	BearerSchema     = "Bearer"
 )

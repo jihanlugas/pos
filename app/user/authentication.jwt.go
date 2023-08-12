@@ -1,4 +1,4 @@
-package authentication
+package user
 
 import (
 	"errors"
@@ -17,16 +17,15 @@ import (
 type UserLogin struct {
 	UserID      string
 	RoleID      string
-	CompanyID   string
 	PassVersion int
 }
 
-func CreateToken(userID string, roleID, companyID string, passVersion int, expiredAt time.Time) (string, error) {
+func CreateToken(userLogin UserLogin, expiredAt time.Time) (string, error) {
 	var err error
 
 	now := time.Now()
 	expiredUnix := expiredAt.Unix()
-	subject := fmt.Sprintf("%s$$%s$$%s$$%d$$%d", userID, roleID, companyID, passVersion, expiredUnix)
+	subject := fmt.Sprintf("%s$$%s$$%d$$%d", userLogin.UserID, userLogin.RoleID, userLogin.PassVersion, expiredUnix)
 	jwtKey := []byte(config.JwtSecretKey)
 	claims := jwt.MapClaims{
 		"iss": "Services",
@@ -46,7 +45,7 @@ func ExtractClaims(header string) (UserLogin, error) {
 	var userlogin UserLogin
 
 	if header == "" {
-		err = errors.New("Unauthorized")
+		err = errors.New("unauthorized")
 		return userlogin, err
 	}
 
@@ -58,12 +57,12 @@ func ExtractClaims(header string) (UserLogin, error) {
 
 	content := claims["sub"].(string)
 	contentData := strings.Split(content, "$$")
-	if len(contentData) != 5 {
-		err = errors.New("Unauthorized")
+	if len(contentData) != constant.TokenContentLen {
+		err = errors.New("unauthorized")
 		return userlogin, err
 	}
 
-	expiredUnix, err := strconv.ParseInt(contentData[4], 10, 64)
+	expiredUnix, err := strconv.ParseInt(contentData[3], 10, 64)
 	if err != nil {
 		return userlogin, err
 	}
@@ -71,11 +70,11 @@ func ExtractClaims(header string) (UserLogin, error) {
 	expiredAt := time.Unix(expiredUnix, 0)
 	now := time.Now()
 	if now.After(expiredAt) {
-		err = errors.New("Token Expired")
+		err = errors.New("token expired")
 		return userlogin, err
 	}
 
-	passVersion, err := strconv.Atoi(contentData[3])
+	passVersion, err := strconv.Atoi(contentData[2])
 	if err != nil {
 		return userlogin, err
 	}
@@ -83,7 +82,6 @@ func ExtractClaims(header string) (UserLogin, error) {
 	userlogin = UserLogin{
 		UserID:      contentData[0],
 		RoleID:      contentData[1],
-		CompanyID:   contentData[2],
 		PassVersion: passVersion,
 	}
 

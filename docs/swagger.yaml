@@ -2,15 +2,26 @@ definitions:
   request.CreateUser:
     properties:
       email:
+        maxLength: 200
         type: string
       fullname:
+        maxLength: 80
         type: string
       noHp:
+        maxLength: 20
         type: string
       passwd:
+        maxLength: 200
         type: string
       username:
+        maxLength: 20
         type: string
+    required:
+    - email
+    - fullname
+    - noHp
+    - passwd
+    - username
     type: object
   request.Signin:
     properties:

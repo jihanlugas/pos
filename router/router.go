@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/jihanlugas/pos/app/app"
-	"github.com/jihanlugas/pos/app/authentication"
 	"github.com/jihanlugas/pos/app/user"
 	"github.com/jihanlugas/pos/config"
 	"github.com/jihanlugas/pos/constant"
@@ -30,13 +29,13 @@ func Init() *echo.Echo {
 	//router.GET("/sign-out", userController.SignOut)
 	//router.GET("/refresh-token", userController.RefreshToken, checkToken)
 
-	authenticationRepo := authentication.NewAuthenticationRepository()
+	authenticationRepo := user.NewAuthenticationRepository()
 	userRepo := user.NewUserRepository()
 
-	authenticationRepoUsecase := authentication.NewAuthenticationUsecase(authenticationRepo, userRepo)
+	authenticationRepoUsecase := user.NewAuthenticationUsecase(authenticationRepo, userRepo)
 	userRepoUsecase := user.NewUserUsecase(userRepo)
 
-	authenticationHandler := authentication.AuthenticationHandler(authenticationRepoUsecase)
+	authenticationHandler := user.NewAuthenticationHandler(authenticationRepoUsecase)
 	userHandler := user.UserHandler(userRepoUsecase)
 
 	router.GET("/swg/*", echoSwagger.WrapHandler)
@@ -48,9 +47,9 @@ func Init() *echo.Echo {
 	router.GET("/refresh-token", authenticationHandler.RefreshToken, checkToken)
 	router.GET("/reset-password", authenticationHandler.ResetPassword)
 
-	user := router.Group("/user")
-	user.GET("/:id", userHandler.GetById)
-	user.GET("/:id", userHandler.Create)
+	userRouter := router.Group("/user")
+	userRouter.GET("/:id", userHandler.GetById)
+	userRouter.POST("", userHandler.Create, checkToken)
 
 	return router
 
@@ -105,7 +104,7 @@ func checkTokenMiddleware() echo.MiddlewareFunc {
 		return func(c echo.Context) error {
 			var err error
 
-			userLogin, err := authentication.ExtractClaims(c.Request().Header.Get(config.HeaderAuthName))
+			userLogin, err := user.ExtractClaims(c.Request().Header.Get(config.HeaderAuthName))
 			if err != nil {
 				return response.ErrorForce(http.StatusUnauthorized, err.Error(), response.Payload{}).SendJSON(c)
 			}
