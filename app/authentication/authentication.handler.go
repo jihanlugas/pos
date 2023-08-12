@@ -1,6 +1,8 @@
 package authentication
 
 import (
+	"github.com/jihanlugas/pos/request"
+	"github.com/jihanlugas/pos/response"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -24,8 +26,19 @@ func AuthenticationHandler(usecase Usecase) Handler {
 // @Failure      500  {object}  response.Response
 // @Router /sign-in [post]
 func (h Handler) SignIn(c echo.Context) error {
-	tes := h.usecase.Tes(c)
-	return c.String(http.StatusOK, tes)
+	var err error
+
+	req := new(request.Signin)
+	if err = c.Bind(req); err != nil {
+		return response.Error(http.StatusBadRequest, "error validation", response.ValidationError(err)).SendJSON(c)
+	}
+
+	if err = c.Validate(req); err != nil {
+		return response.Error(http.StatusBadRequest, "error validation", response.ValidationError(err)).SendJSON(c)
+	}
+
+	err = h.usecase.SignIn(req)
+	return response.Success(http.StatusOK, "success", response.Payload{}).SendJSON(c)
 }
 
 // SignOut Sign out user

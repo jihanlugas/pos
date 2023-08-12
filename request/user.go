@@ -10,3 +10,11 @@ type ChangePassword struct {
 	Passwd        string `json:"passwd" form:"passwd" validate:"required,lte=200"`
 	ConfirmPasswd string `json:"confirmPasswd" form:"confirmPasswd" validate:"required,lte=200,eqfield=Passwd"`
 }
+
+type CreateUser struct {
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	NoHp     string `json:"noHp"`
+	Fullname string `json:"fullname"`
+	Passwd   string `json:"passwd"`
+}

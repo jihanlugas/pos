@@ -1,4 +1,17 @@
 definitions:
+  request.CreateUser:
+    properties:
+      email:
+        type: string
+      fullname:
+        type: string
+      noHp:
+        type: string
+      passwd:
+        type: string
+      username:
+        type: string
+    type: object
   request.Signin:
     properties:
       passwd:
@@ -118,6 +131,32 @@ paths:
             $ref: '#/definitions/response.Response'
       tags:
       - Authentication
+  /user:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - User
   /user/{id}:
     get:
       consumes:

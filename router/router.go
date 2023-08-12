@@ -33,7 +33,7 @@ func Init() *echo.Echo {
 	authenticationRepo := authentication.NewAuthenticationRepository()
 	userRepo := user.NewUserRepository()
 
-	authenticationRepoUsecase := authentication.NewAuthenticationUsecase(authenticationRepo)
+	authenticationRepoUsecase := authentication.NewAuthenticationUsecase(authenticationRepo, userRepo)
 	userRepoUsecase := user.NewUserUsecase(userRepo)
 
 	authenticationHandler := authentication.AuthenticationHandler(authenticationRepoUsecase)
@@ -50,6 +50,7 @@ func Init() *echo.Echo {
 
 	user := router.Group("/user")
 	user.GET("/:id", userHandler.GetById)
+	user.GET("/:id", userHandler.Create)
 
 	return router
 
