@@ -34,6 +34,26 @@ definitions:
     - passwd
     - username
     type: object
+  request.UpdateUser:
+    properties:
+      email:
+        maxLength: 200
+        type: string
+      fullname:
+        maxLength: 80
+        type: string
+      noHp:
+        maxLength: 20
+        type: string
+      username:
+        maxLength: 20
+        type: string
+    required:
+    - email
+    - fullname
+    - noHp
+    - username
+    type: object
   response.Response:
     properties:
       code:
@@ -169,6 +189,30 @@ paths:
       tags:
       - User
   /user/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - User
     get:
       consumes:
       - application/json
@@ -178,6 +222,36 @@ paths:
         name: id
         required: true
         type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateUser'
       produces:
       - application/json
       responses:

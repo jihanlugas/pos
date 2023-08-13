@@ -4,6 +4,7 @@ import (
 	"github.com/jihanlugas/pos/model"
 	"github.com/jihanlugas/pos/utils"
 	"gorm.io/gorm"
+	"time"
 )
 
 type Repository interface {
@@ -17,6 +18,7 @@ type Repository interface {
 	GetViewByNoHp(conn *gorm.DB, noHp string) (model.UserView, error)
 	Create(conn *gorm.DB, data model.User) error
 	Update(conn *gorm.DB, data model.User) error
+	Delete(conn *gorm.DB, data model.User) error
 	//Update(conn *gorm.DB, id string, data model.User) error
 	//Delete(conn *gorm.DB, id string) error
 	//Page(conn *gorm.DB) ([]model.UserView, error)
@@ -97,6 +99,14 @@ func (u userRepository) Create(conn *gorm.DB, data model.User) error {
 }
 
 func (u userRepository) Update(conn *gorm.DB, data model.User) error {
+	conn.Save(&data)
+
+	return nil
+}
+
+func (u userRepository) Delete(conn *gorm.DB, data model.User) error {
+	now := time.Now()
+	data.DeleteDt = &now
 	conn.Save(&data)
 
 	return nil

@@ -18,3 +18,10 @@ type CreateUser struct {
 	Username string `json:"username" form:"username" validate:"required,lte=20,lowercase,notexists=username username"`
 	Passwd   string `json:"passwd" form:"passwd" validate:"required,lte=200"`
 }
+
+type UpdateUser struct {
+	Fullname string `json:"fullname" form:"fullname" validate:"required,lte=80"`
+	Email    string `json:"email" form:"email" validate:"required,lte=200,email,notexists=email email"`
+	NoHp     string `json:"noHp" form:"noHp" validate:"required,lte=20,notexists=no_hp noHp"`
+	Username string `json:"username" form:"username" validate:"required,lte=20,lowercase,notexists=username username"`
+}

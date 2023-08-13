@@ -50,6 +50,8 @@ func Init() *echo.Echo {
 	userRouter := router.Group("/user")
 	userRouter.GET("/:id", userHandler.GetById)
 	userRouter.POST("", userHandler.Create, checkToken)
+	userRouter.PUT("/:id", userHandler.Update, checkToken)
+	userRouter.DELETE("/:id", userHandler.Delete, checkToken)
 
 	return router
 

@@ -10,8 +10,11 @@ import (
 )
 
 type Usecase interface {
-	GetById(id string) (model.UserView, error)
+	GetById(id string) (model.User, error)
+	GetViewById(id string) (model.UserView, error)
 	Create(loginUser UserLogin, req *request.CreateUser) error
+	Update(loginUser UserLogin, id string, req *request.UpdateUser) error
+	Delete(loginUser UserLogin, id string) error
 }
 
 type userUsecase struct {
@@ -60,7 +63,18 @@ func (u userUsecase) Create(loginUser UserLogin, req *request.CreateUser) error 
 	return err
 }
 
-func (u userUsecase) GetById(id string) (model.UserView, error) {
+func (u userUsecase) GetById(id string) (model.User, error) {
+	var err error
+
+	conn, closeConn := db.GetConnection()
+	defer closeConn()
+
+	data, err := u.repo.GetById(conn, id)
+
+	return data, err
+}
+
+func (u userUsecase) GetViewById(id string) (model.UserView, error) {
 	var err error
 
 	conn, closeConn := db.GetConnection()
@@ -69,6 +83,66 @@ func (u userUsecase) GetById(id string) (model.UserView, error) {
 	data, err := u.repo.GetViewById(conn, id)
 
 	return data, err
+}
+
+func (u userUsecase) Update(loginUser UserLogin, id string, req *request.UpdateUser) error {
+	var err error
+
+	conn, closeConn := db.GetConnection()
+	defer closeConn()
+
+	data, err := u.repo.GetById(conn, id)
+	if err != nil {
+		return err
+	}
+
+	data.Fullname = req.Fullname
+	data.Email = req.Email
+	data.Username = req.Username
+	data.NoHp = utils.FormatPhoneTo62(req.NoHp)
+	data.UpdateBy = loginUser.UserID
+
+	tx := conn.Begin()
+
+	err = u.repo.Update(tx, data)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (u userUsecase) Delete(loginUser UserLogin, id string) error {
+	var err error
+
+	conn, closeConn := db.GetConnection()
+	defer closeConn()
+
+	data, err := u.repo.GetById(conn, id)
+	if err != nil {
+		return err
+	}
+
+	data.DeleteBy = loginUser.UserID
+
+	tx := conn.Begin()
+
+	err = u.repo.Delete(tx, data)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return err
+	}
+
+	return err
 }
 
 func NewUserUsecase(repo Repository) Usecase {
