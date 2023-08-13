@@ -10,6 +10,10 @@ type Paging struct {
 }
 
 func (p *Paging) GetPage() int {
+	if p.Page == 0 {
+		p.Page = 1
+	}
+
 	return p.Page
 }
 
@@ -26,10 +30,6 @@ func (p *Paging) SetLimit(lim int) {
 }
 
 func (p *Paging) SetPage(page int) {
-	p.Page = page
-}
-
-func (p *Paging) Tes(page int) {
 	p.Page = page
 }
 

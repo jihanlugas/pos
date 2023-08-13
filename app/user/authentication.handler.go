@@ -17,7 +17,7 @@ func NewAuthenticationHandler(usecase AuthenticationUsecase) AuthenticationHandl
 	}
 }
 
-// SignIn Sign in user
+// SignIn
 // @Tags Authentication
 // @Accept json
 // @Produce json

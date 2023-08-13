@@ -52,6 +52,7 @@ func Init() *echo.Echo {
 	userRouter.POST("", userHandler.Create, checkToken)
 	userRouter.PUT("/:id", userHandler.Update, checkToken)
 	userRouter.DELETE("/:id", userHandler.Delete, checkToken)
+	userRouter.GET("/page", userHandler.Page, checkToken)
 
 	return router
 

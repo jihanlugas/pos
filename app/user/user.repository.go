@@ -2,6 +2,7 @@ package user
 
 import (
 	"github.com/jihanlugas/pos/model"
+	"github.com/jihanlugas/pos/request"
 	"github.com/jihanlugas/pos/utils"
 	"gorm.io/gorm"
 	"time"
@@ -19,6 +20,7 @@ type Repository interface {
 	Create(conn *gorm.DB, data model.User) error
 	Update(conn *gorm.DB, data model.User) error
 	Delete(conn *gorm.DB, data model.User) error
+	Page(conn *gorm.DB, req *request.PageUser) ([]model.UserView, int64, error)
 	//Update(conn *gorm.DB, id string, data model.User) error
 	//Delete(conn *gorm.DB, id string) error
 	//Page(conn *gorm.DB) ([]model.UserView, error)
@@ -26,6 +28,33 @@ type Repository interface {
 }
 
 type userRepository struct {
+}
+
+func (u userRepository) Page(conn *gorm.DB, req *request.PageUser) ([]model.UserView, int64, error) {
+	var err error
+	var data []model.UserView
+	var count int64
+
+	err = conn.Model(&data).
+		Where("email LIKE ?", "%"+req.Email+"%").
+		Where("username LIKE ?", "%"+req.Username+"%").
+		Where("no_hp LIKE ?", "%"+utils.FormatPhoneTo62(req.NoHp)+"%").
+		Count(&count).Error
+	if err != nil {
+		return data, count, err
+	}
+
+	err = conn.Where("email LIKE ?", "%"+req.Email+"%").
+		Where("username LIKE ?", "%"+req.Username+"%").
+		Where("no_hp LIKE ?", "%"+utils.FormatPhoneTo62(req.NoHp)+"%").
+		Offset((req.GetPage() - 1) * req.GetLimit()).
+		Limit(req.GetLimit()).
+		Find(&data).Error
+	if err != nil {
+		return data, count, err
+	}
+
+	return data, count, err
 }
 
 func (u userRepository) GetById(conn *gorm.DB, id string) (model.User, error) {

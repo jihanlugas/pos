@@ -267,6 +267,41 @@ paths:
       - BearerAuth: []
       tags:
       - User
+  /user/page:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        name: email
+        type: string
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        name: noHp
+        type: string
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: username
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - User
 securityDefinitions:
   BearerAuth:
     in: header

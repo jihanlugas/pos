@@ -15,6 +15,7 @@ type Usecase interface {
 	Create(loginUser UserLogin, req *request.CreateUser) error
 	Update(loginUser UserLogin, id string, req *request.UpdateUser) error
 	Delete(loginUser UserLogin, id string) error
+	Page(req *request.PageUser) ([]model.UserView, int64, error)
 }
 
 type userUsecase struct {
@@ -143,6 +144,22 @@ func (u userUsecase) Delete(loginUser UserLogin, id string) error {
 	}
 
 	return err
+}
+
+func (u userUsecase) Page(req *request.PageUser) ([]model.UserView, int64, error) {
+	var err error
+	var data []model.UserView
+	var count int64
+
+	conn, closeConn := db.GetConnection()
+	defer closeConn()
+
+	data, count, err = u.repo.Page(conn, req)
+	if err != nil {
+		return data, count, err
+	}
+
+	return data, count, err
 }
 
 func NewUserUsecase(repo Repository) Usecase {
