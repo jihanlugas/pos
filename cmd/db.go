@@ -32,7 +32,7 @@ var upCmd = &cobra.Command{
 var downCmd = &cobra.Command{
 	Use:   "down",
 	Short: "Down table",
-	Long:  "Down table",
+	Long:  "remove public schema, create public schema, restore the default grants",
 	Run: func(cmd *cobra.Command, args []string) {
 		down()
 	},
@@ -95,20 +95,42 @@ func up() {
 
 }
 
+// remove public schema
 func down() {
 	var err error
 
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
-	// view
-	err = conn.Migrator().DropView(model.VIEW_USER)
+	err = conn.Exec("DROP SCHEMA public CASCADE").Error
 	if err != nil {
 		panic(err)
 	}
 
-	// table
-	err = conn.Migrator().DropTable(&model.User{})
+	err = conn.Exec("CREATE SCHEMA public").Error
+	if err != nil {
+		panic(err)
+	}
+
+	err = conn.Exec("GRANT ALL ON SCHEMA public TO postgres").Error
+	if err != nil {
+		panic(err)
+	}
+
+	err = conn.Exec("GRANT ALL ON SCHEMA public TO public").Error
+	if err != nil {
+		panic(err)
+	}
+
+	//// view
+	//err = conn.Migrator().DropView(model.VIEW_USER)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//
+	//// table
+	//err = conn.Migrator().DropTable(&model.User{})
+
 	if err != nil {
 		panic(err)
 	}
