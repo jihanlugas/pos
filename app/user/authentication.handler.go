@@ -55,7 +55,7 @@ func (h AuthenticationHandler) SignIn(c echo.Context) error {
 // // @Param req body request.Signin true "json req body"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /sign-out [post]
+// @Router /sign-out [get]
 func (h AuthenticationHandler) SignOut(c echo.Context) error {
 	return nil
 }
