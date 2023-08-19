@@ -12,7 +12,7 @@ entity "users" <<(P,LightGreen)>> {
     fullname: type(varchar)
     passwd: type(varchar)
     pass_version: type(varchar)
-    is_active: type(bool)
+    active: type(bool)
     photo_id: type(varchar)
     last_login_dt: type(timestampTz)
     create_by: type(varchar)

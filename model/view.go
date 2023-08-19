@@ -4,7 +4,7 @@ import "time"
 
 type UserView struct {
 	ID          string     `json:"id"`
-	RoleID      string     `json:"role_id"`
+	RoleID      string     `json:"roleId"`
 	Email       string     `json:"email"`
 	Username    string     `json:"username"`
 	NoHp        string     `json:"noHp"`
@@ -28,4 +28,46 @@ type UserView struct {
 
 func (UserView) TableName() string {
 	return VIEW_USER
+}
+
+type CompanyView struct {
+	ID          string     `json:"primaryKey"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	Address     string     `json:"address"`
+	CreateBy    string     `json:"createBy"`
+	CreateDt    time.Time  `json:"createDt"`
+	UpdateBy    string     `json:"updateBy"`
+	UpdateDt    time.Time  `json:"updateDt"`
+	DeleteBy    string     `json:"deleteBy"`
+	DeleteDt    *time.Time `json:"deleteDt"`
+	CreateName  string     `json:"createName"`
+	UpdateName  string     `json:"updateName"`
+	DeleteName  string     `json:"deleteName"`
+}
+
+func (CompanyView) TableName() string {
+	return VIEW_COMPANY
+}
+
+type ItemView struct {
+	ID          string     `json:"id"`
+	CompanyID   string     `json:"companyId"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	Price       int64      `json:"price"`
+	CreateBy    string     `json:"createBy"`
+	CreateDt    time.Time  `json:"createDt"`
+	UpdateBy    string     `json:"updateBy"`
+	UpdateDt    time.Time  `json:"updateDt"`
+	DeleteBy    string     `json:"deleteBy"`
+	DeleteDt    *time.Time `json:"deleteDt"`
+	CompanyName string     `json:"companyName"`
+	CreateName  string     `json:"createName"`
+	UpdateName  string     `json:"updateName"`
+	DeleteName  string     `json:"deleteName"`
+}
+
+func (ItemView) TableName() string {
+	return VIEW_ITEM
 }

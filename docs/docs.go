@@ -108,7 +108,7 @@ const docTemplate = `{
             }
         },
         "/sign-out": {
-            "post": {
+            "get": {
                 "consumes": [
                     "application/json"
                 ],

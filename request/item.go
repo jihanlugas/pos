@@ -3,11 +3,13 @@ package request
 type CreateItem struct {
 	Name        string `json:"name" validate:"required"`
 	Description string `json:"description" validate:"required"`
+	Price       int64  `json:"price" validate:"required"`
 }
 
 type UpdateItem struct {
 	Name        string `json:"name" validate:"required"`
 	Description string `json:"description" validate:"required"`
+	Price       int64  `json:"price" validate:"required"`
 }
 
 type PageItem struct {
