@@ -106,7 +106,7 @@ func (u usecaseUser) Update(loginUser UserLogin, id string, req *request.UpdateU
 	return err
 }
 
-func (u usecaseeUser) Delete(loginUser UserLogin, id string) error {
+func (u usecaseUser) Delete(loginUser UserLogin, id string) error {
 	var err error
 
 	conn, closeConn := db.GetConnection()
@@ -134,7 +134,7 @@ func (u usecaseeUser) Delete(loginUser UserLogin, id string) error {
 	return err
 }
 
-func (u usecaseeUser) Page(req *request.PageUser) ([]model.UserView, int64, error) {
+func (u usecaseUser) Page(req *request.PageUser) ([]model.UserView, int64, error) {
 	var err error
 	var data []model.UserView
 	var count int64
@@ -151,7 +151,7 @@ func (u usecaseeUser) Page(req *request.PageUser) ([]model.UserView, int64, erro
 }
 
 func NewUserUsecase(repo Repository) Usecase {
-	return usecaseeUser{
+	return usecaseUser{
 		repo: repo,
 	}
 }

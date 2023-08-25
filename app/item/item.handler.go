@@ -35,7 +35,7 @@ func (h Handler) GetById(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, "data not found", response.Payload{}).SendJSON(c)
 	}
 
-	data, err := h.usecase.GetViewById(id)
+	data, err := h.usecase.GetById(id)
 	if err != nil {
 		return response.Error(http.StatusBadRequest, "data not found", response.Payload{}).SendJSON(c)
 	}

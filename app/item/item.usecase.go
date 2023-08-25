@@ -71,7 +71,7 @@ func (u usecaseItem) Delete(loginUser user.UserLogin, id string) error {
 	panic("implement me")
 }
 
-func (u usecaseItem) Page(req *request.PageUser) ([]model.ItemView, int64, error) {
+func (u usecaseItem) Page(req *request.PageItem) ([]model.ItemView, int64, error) {
 	//TODO implement me
 	panic("implement me")
 }
