@@ -10,8 +10,7 @@ import (
 )
 
 type Usecase interface {
-	GetById(id string) (model.User, error)
-	GetViewById(id string) (model.UserView, error)
+	GetById(id string) (model.UserView, error)
 	Create(loginUser UserLogin, req *request.CreateUser) error
 	Update(loginUser UserLogin, id string, req *request.UpdateUser) error
 	Delete(loginUser UserLogin, id string) error
@@ -64,18 +63,7 @@ func (u usecaseUser) Create(loginUser UserLogin, req *request.CreateUser) error 
 	return err
 }
 
-func (u usecaseUser) GetById(id string) (model.User, error) {
-	var err error
-
-	conn, closeConn := db.GetConnection()
-	defer closeConn()
-
-	data, err := u.repo.GetById(conn, id)
-
-	return data, err
-}
-
-func (u usecaseUser) GetViewById(id string) (model.UserView, error) {
+func (u usecaseUser) GetById(id string) (model.UserView, error) {
 	var err error
 
 	conn, closeConn := db.GetConnection()

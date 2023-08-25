@@ -21,10 +21,6 @@ type Repository interface {
 	Update(conn *gorm.DB, data model.User) error
 	Delete(conn *gorm.DB, data model.User) error
 	Page(conn *gorm.DB, req *request.PageUser) ([]model.UserView, int64, error)
-	//Update(conn *gorm.DB, id string, data model.User) error
-	//Delete(conn *gorm.DB, id string) error
-	//Page(conn *gorm.DB) ([]model.UserView, error)
-	//List(conn *gorm.DB) ([]model.UserView, error)
 }
 
 type repositoryUser struct {
