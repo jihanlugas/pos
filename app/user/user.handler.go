@@ -34,7 +34,7 @@ func (h Handler) GetById(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, "data not found", response.Payload{}).SendJSON(c)
 	}
 
-	data, err := h.usecase.GetViewById(id)
+	data, err := h.usecase.GetById(id)
 	if err != nil {
 		return response.Error(http.StatusBadRequest, "data not found", response.Payload{}).SendJSON(c)
 	}
@@ -159,7 +159,7 @@ func (h Handler) Delete(c echo.Context) error {
 // @Router /user/page [get]
 func (h Handler) Page(c echo.Context) error {
 	var err error
-	
+
 	req := new(request.PageUser)
 	if err = c.Bind(req); err != nil {
 		return response.Error(http.StatusBadRequest, err.Error(), response.Payload{}).SendJSON(c)

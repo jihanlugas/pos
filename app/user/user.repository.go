@@ -21,16 +21,12 @@ type Repository interface {
 	Update(conn *gorm.DB, data model.User) error
 	Delete(conn *gorm.DB, data model.User) error
 	Page(conn *gorm.DB, req *request.PageUser) ([]model.UserView, int64, error)
-	//Update(conn *gorm.DB, id string, data model.User) error
-	//Delete(conn *gorm.DB, id string) error
-	//Page(conn *gorm.DB) ([]model.UserView, error)
-	//List(conn *gorm.DB) ([]model.UserView, error)
 }
 
-type userRepository struct {
+type repositoryUser struct {
 }
 
-func (u userRepository) Page(conn *gorm.DB, req *request.PageUser) ([]model.UserView, int64, error) {
+func (r repositoryUser) Page(conn *gorm.DB, req *request.PageUser) ([]model.UserView, int64, error) {
 	var err error
 	var data []model.UserView
 	var count int64
@@ -57,7 +53,7 @@ func (u userRepository) Page(conn *gorm.DB, req *request.PageUser) ([]model.User
 	return data, count, err
 }
 
-func (u userRepository) GetById(conn *gorm.DB, id string) (model.User, error) {
+func (r repositoryUser) GetById(conn *gorm.DB, id string) (model.User, error) {
 	var err error
 	var data model.User
 
@@ -65,7 +61,7 @@ func (u userRepository) GetById(conn *gorm.DB, id string) (model.User, error) {
 	return data, err
 }
 
-func (u userRepository) GetByEmail(conn *gorm.DB, email string) (model.User, error) {
+func (r repositoryUser) GetByEmail(conn *gorm.DB, email string) (model.User, error) {
 	var err error
 	var data model.User
 
@@ -73,7 +69,7 @@ func (u userRepository) GetByEmail(conn *gorm.DB, email string) (model.User, err
 	return data, err
 }
 
-func (u userRepository) GetByUsername(conn *gorm.DB, username string) (model.User, error) {
+func (r repositoryUser) GetByUsername(conn *gorm.DB, username string) (model.User, error) {
 	var err error
 	var data model.User
 
@@ -81,7 +77,7 @@ func (u userRepository) GetByUsername(conn *gorm.DB, username string) (model.Use
 	return data, err
 }
 
-func (u userRepository) GetByNoHp(conn *gorm.DB, noHp string) (model.User, error) {
+func (r repositoryUser) GetByNoHp(conn *gorm.DB, noHp string) (model.User, error) {
 	var err error
 	var data model.User
 
@@ -89,7 +85,7 @@ func (u userRepository) GetByNoHp(conn *gorm.DB, noHp string) (model.User, error
 	return data, err
 }
 
-func (u userRepository) GetViewById(conn *gorm.DB, id string) (model.UserView, error) {
+func (r repositoryUser) GetViewById(conn *gorm.DB, id string) (model.UserView, error) {
 	var err error
 	var data model.UserView
 
@@ -97,7 +93,7 @@ func (u userRepository) GetViewById(conn *gorm.DB, id string) (model.UserView, e
 	return data, err
 }
 
-func (u userRepository) GetViewByEmail(conn *gorm.DB, email string) (model.UserView, error) {
+func (r repositoryUser) GetViewByEmail(conn *gorm.DB, email string) (model.UserView, error) {
 	var err error
 	var data model.UserView
 
@@ -105,7 +101,7 @@ func (u userRepository) GetViewByEmail(conn *gorm.DB, email string) (model.UserV
 	return data, err
 }
 
-func (u userRepository) GetViewByUsername(conn *gorm.DB, username string) (model.UserView, error) {
+func (r repositoryUser) GetViewByUsername(conn *gorm.DB, username string) (model.UserView, error) {
 	var err error
 	var data model.UserView
 
@@ -113,7 +109,7 @@ func (u userRepository) GetViewByUsername(conn *gorm.DB, username string) (model
 	return data, err
 }
 
-func (u userRepository) GetViewByNoHp(conn *gorm.DB, noHp string) (model.UserView, error) {
+func (r repositoryUser) GetViewByNoHp(conn *gorm.DB, noHp string) (model.UserView, error) {
 	var err error
 	var data model.UserView
 
@@ -121,19 +117,19 @@ func (u userRepository) GetViewByNoHp(conn *gorm.DB, noHp string) (model.UserVie
 	return data, err
 }
 
-func (u userRepository) Create(conn *gorm.DB, data model.User) error {
+func (r repositoryUser) Create(conn *gorm.DB, data model.User) error {
 	conn.Save(&data)
 
 	return nil
 }
 
-func (u userRepository) Update(conn *gorm.DB, data model.User) error {
+func (r repositoryUser) Update(conn *gorm.DB, data model.User) error {
 	conn.Save(&data)
 
 	return nil
 }
 
-func (u userRepository) Delete(conn *gorm.DB, data model.User) error {
+func (r repositoryUser) Delete(conn *gorm.DB, data model.User) error {
 	now := time.Now()
 	data.DeleteDt = &now
 	conn.Save(&data)
@@ -142,5 +138,5 @@ func (u userRepository) Delete(conn *gorm.DB, data model.User) error {
 }
 
 func NewUserRepository() Repository {
-	return userRepository{}
+	return repositoryUser{}
 }
