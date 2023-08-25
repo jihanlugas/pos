@@ -17,11 +17,11 @@ type Usecase interface {
 	Page(req *request.PageUser) ([]model.UserView, int64, error)
 }
 
-type usecaseeUser struct {
+type usecaseUser struct {
 	repo Repository
 }
 
-func (u usecaseeUser) Create(loginUser UserLogin, req *request.CreateUser) error {
+func (u usecaseUser) Create(loginUser UserLogin, req *request.CreateUser) error {
 	var err error
 	var data model.User
 
@@ -63,7 +63,7 @@ func (u usecaseeUser) Create(loginUser UserLogin, req *request.CreateUser) error
 	return err
 }
 
-func (u usecaseeUser) GetById(id string) (model.UserView, error) {
+func (u usecaseUser) GetById(id string) (model.UserView, error) {
 	var err error
 
 	conn, closeConn := db.GetConnection()
@@ -74,7 +74,7 @@ func (u usecaseeUser) GetById(id string) (model.UserView, error) {
 	return data, err
 }
 
-func (u usecaseeUser) Update(loginUser UserLogin, id string, req *request.UpdateUser) error {
+func (u usecaseUser) Update(loginUser UserLogin, id string, req *request.UpdateUser) error {
 	var err error
 
 	conn, closeConn := db.GetConnection()

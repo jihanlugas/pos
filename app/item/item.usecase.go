@@ -12,7 +12,7 @@ type Usecase interface {
 	Create(loginUser user.UserLogin, req *request.CreateItem) error
 	Update(loginUser user.UserLogin, id string, req *request.UpdateItem) error
 	Delete(loginUser user.UserLogin, id string) error
-	Page(req *request.PageUser) ([]model.ItemView, int64, error)
+	Page(req *request.PageItem) ([]model.ItemView, int64, error)
 }
 
 type usecaseItem struct {

@@ -18,12 +18,12 @@ type AuthenticationUsecase interface {
 	SignIn(req *request.Signin) (string, error)
 }
 
-type authenticationUsecase struct {
+type usecaseAuthentication struct {
 	repo     AuthenticationRepository
 	userRepo Repository
 }
 
-func (u authenticationUsecase) SignIn(req *request.Signin) (string, error) {
+func (u usecaseAuthentication) SignIn(req *request.Signin) (string, error) {
 	var err error
 	var data model.User
 	var userLogin UserLogin
@@ -78,16 +78,16 @@ func (u authenticationUsecase) SignIn(req *request.Signin) (string, error) {
 	return token, err
 }
 
-func (u authenticationUsecase) Tes(c echo.Context) string {
+func (u usecaseAuthentication) Tes(c echo.Context) string {
 	return "Tes"
 }
 
-func (u authenticationUsecase) Test(c echo.Context) string {
+func (u usecaseAuthentication) Test(c echo.Context) string {
 	return "Test"
 }
 
 func NewAuthenticationUsecase(repo AuthenticationRepository, userRepo Repository) AuthenticationUsecase {
-	return authenticationUsecase{
+	return usecaseAuthentication{
 		repo:     repo,
 		userRepo: userRepo,
 	}
