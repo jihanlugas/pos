@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/jihanlugas/pos/app/app"
+	"github.com/jihanlugas/pos/app/item"
 	"github.com/jihanlugas/pos/app/user"
 	"github.com/jihanlugas/pos/config"
 	"github.com/jihanlugas/pos/constant"
@@ -31,12 +32,15 @@ func Init() *echo.Echo {
 
 	authenticationRepo := user.NewAuthenticationRepository()
 	userRepo := user.NewUserRepository()
+	itemRepo := item.NewItemRepository()
 
 	authenticationRepoUsecase := user.NewAuthenticationUsecase(authenticationRepo, userRepo)
 	userRepoUsecase := user.NewUserUsecase(userRepo)
+	itemRepoUsecase := item.NewItemUsecase(itemRepo)
 
 	authenticationHandler := user.NewAuthenticationHandler(authenticationRepoUsecase)
 	userHandler := user.UserHandler(userRepoUsecase)
+	itemHandler := item.ItemHandler(itemRepoUsecase)
 
 	router.GET("/swg/*", echoSwagger.WrapHandler)
 	router.GET("/", app.Ping)
@@ -53,6 +57,13 @@ func Init() *echo.Echo {
 	userRouter.PUT("/:id", userHandler.Update, checkToken)
 	userRouter.DELETE("/:id", userHandler.Delete, checkToken)
 	userRouter.GET("/page", userHandler.Page, checkToken)
+
+	itemRouter := router.Group("/item")
+	itemRouter.GET("/:id", itemHandler.GetById)
+	itemRouter.POST("", itemHandler.Create, checkToken)
+	itemRouter.PUT("/:id", itemHandler.Update, checkToken)
+	itemRouter.DELETE("/:id", itemHandler.Delete, checkToken)
+	itemRouter.GET("/page", itemHandler.Page, checkToken)
 
 	return router
 
