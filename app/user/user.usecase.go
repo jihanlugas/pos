@@ -10,19 +10,18 @@ import (
 )
 
 type Usecase interface {
-	GetById(id string) (model.User, error)
-	GetViewById(id string) (model.UserView, error)
+	GetById(id string) (model.UserView, error)
 	Create(loginUser UserLogin, req *request.CreateUser) error
 	Update(loginUser UserLogin, id string, req *request.UpdateUser) error
 	Delete(loginUser UserLogin, id string) error
 	Page(req *request.PageUser) ([]model.UserView, int64, error)
 }
 
-type userUsecase struct {
+type usecaseeUser struct {
 	repo Repository
 }
 
-func (u userUsecase) Create(loginUser UserLogin, req *request.CreateUser) error {
+func (u usecaseeUser) Create(loginUser UserLogin, req *request.CreateUser) error {
 	var err error
 	var data model.User
 
@@ -64,18 +63,7 @@ func (u userUsecase) Create(loginUser UserLogin, req *request.CreateUser) error 
 	return err
 }
 
-func (u userUsecase) GetById(id string) (model.User, error) {
-	var err error
-
-	conn, closeConn := db.GetConnection()
-	defer closeConn()
-
-	data, err := u.repo.GetById(conn, id)
-
-	return data, err
-}
-
-func (u userUsecase) GetViewById(id string) (model.UserView, error) {
+func (u usecaseeUser) GetById(id string) (model.UserView, error) {
 	var err error
 
 	conn, closeConn := db.GetConnection()
@@ -86,7 +74,7 @@ func (u userUsecase) GetViewById(id string) (model.UserView, error) {
 	return data, err
 }
 
-func (u userUsecase) Update(loginUser UserLogin, id string, req *request.UpdateUser) error {
+func (u usecaseeUser) Update(loginUser UserLogin, id string, req *request.UpdateUser) error {
 	var err error
 
 	conn, closeConn := db.GetConnection()
@@ -118,7 +106,7 @@ func (u userUsecase) Update(loginUser UserLogin, id string, req *request.UpdateU
 	return err
 }
 
-func (u userUsecase) Delete(loginUser UserLogin, id string) error {
+func (u usecaseeUser) Delete(loginUser UserLogin, id string) error {
 	var err error
 
 	conn, closeConn := db.GetConnection()
@@ -146,7 +134,7 @@ func (u userUsecase) Delete(loginUser UserLogin, id string) error {
 	return err
 }
 
-func (u userUsecase) Page(req *request.PageUser) ([]model.UserView, int64, error) {
+func (u usecaseeUser) Page(req *request.PageUser) ([]model.UserView, int64, error) {
 	var err error
 	var data []model.UserView
 	var count int64
@@ -163,7 +151,7 @@ func (u userUsecase) Page(req *request.PageUser) ([]model.UserView, int64, error
 }
 
 func NewUserUsecase(repo Repository) Usecase {
-	return userUsecase{
+	return usecaseeUser{
 		repo: repo,
 	}
 }
