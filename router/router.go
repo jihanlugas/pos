@@ -34,13 +34,13 @@ func Init() *echo.Echo {
 	userRepo := user.NewUserRepository()
 	itemRepo := item.NewItemRepository()
 
-	authenticationRepoUsecase := user.NewAuthenticationUsecase(authenticationRepo, userRepo)
-	userRepoUsecase := user.NewUserUsecase(userRepo)
-	itemRepoUsecase := item.NewItemUsecase(itemRepo)
+	authenticationUsecase := user.NewAuthenticationUsecase(authenticationRepo, userRepo)
+	userUsecase := user.NewUserUsecase(userRepo)
+	itemUsecase := item.NewItemUsecase(itemRepo)
 
-	authenticationHandler := user.NewAuthenticationHandler(authenticationRepoUsecase)
-	userHandler := user.UserHandler(userRepoUsecase)
-	itemHandler := item.ItemHandler(itemRepoUsecase)
+	authenticationHandler := user.NewAuthenticationHandler(authenticationUsecase)
+	userHandler := user.UserHandler(userUsecase)
+	itemHandler := item.ItemHandler(itemUsecase)
 
 	router.GET("/swg/*", echoSwagger.WrapHandler)
 	router.GET("/", app.Ping)
