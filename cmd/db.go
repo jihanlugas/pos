@@ -78,6 +78,16 @@ func up() {
 		panic(err)
 	}
 
+	err = conn.Migrator().AutoMigrate(&model.Company{})
+	if err != nil {
+		panic(err)
+	}
+
+	err = conn.Migrator().AutoMigrate(&model.Usercompany{})
+	if err != nil {
+		panic(err)
+	}
+
 	// view
 	vUser := conn.Model(&model.User{}).
 		Select("users.*, u1.fullname as create_name, u2.fullname as update_name, u3.fullname as delete_name").
@@ -88,6 +98,36 @@ func up() {
 	err = conn.Migrator().CreateView(model.VIEW_USER, gorm.ViewOption{
 		Replace: true,
 		Query:   vUser,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	vCompany := conn.Model(&model.Company{}).
+		Select("companies.*, u1.fullname as create_name, u2.fullname as update_name, u3.fullname as delete_name").
+		Joins("left join users u1 on u1.id = companies.create_by").
+		Joins("left join users u2 on u2.id = companies.update_by").
+		Joins("left join users u3 on u3.id = companies.delete_by")
+
+	err = conn.Migrator().CreateView(model.VIEW_COMPANY, gorm.ViewOption{
+		Replace: true,
+		Query:   vCompany,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	vUsercompany := conn.Model(&model.Usercompany{}).
+		Select("usercompanies.*, companies.name as company_name, users.fullname as user_name, u1.fullname as create_name, u2.fullname as update_name, u3.fullname as delete_name").
+		Joins("left join companies companies on companies.id = usercompanies.company_id").
+		Joins("left join users users on users.id = usercompanies.user_id").
+		Joins("left join users u1 on u1.id = usercompanies.create_by").
+		Joins("left join users u2 on u2.id = usercompanies.update_by").
+		Joins("left join users u3 on u3.id = usercompanies.delete_by")
+
+	err = conn.Migrator().CreateView(model.VIEW_USERCOMPANY, gorm.ViewOption{
+		Replace: true,
+		Query:   vUsercompany,
 	})
 	if err != nil {
 		panic(err)
@@ -148,11 +188,61 @@ func seed() {
 
 	tx := conn.Begin()
 
-	users := []model.User{
-		{RoleID: utils.GetUniqueID(), Email: "jihanlugas2@gmail.com", Username: "jihanlugas", NoHp: "6287770333043", Fullname: "Jihan Lugas", Passwd: password, PassVersion: 1, Active: true, LastLoginDt: nil, PhotoID: "", CreateBy: "", CreateDt: now, UpdateBy: "", UpdateDt: now},
-	}
+	userID := utils.GetUniqueID()
+	companyID := utils.GetUniqueID()
 
+	users := []model.User{
+		{
+			ID:          userID,
+			RoleID:      utils.GetUniqueID(),
+			Email:       "jihanlugas2@gmail.com",
+			Username:    "jihanlugas",
+			NoHp:        "6287770333043",
+			Fullname:    "Jihan Lugas",
+			Passwd:      password,
+			PassVersion: 1,
+			Active:      true,
+			LastLoginDt: nil,
+			PhotoID:     "",
+			CreateBy:    userID,
+			CreateDt:    now,
+			UpdateBy:    userID,
+			UpdateDt:    now,
+		},
+	}
 	tx.Create(&users)
+
+	companies := []model.Company{
+		{
+			ID:          companyID,
+			Name:        "Jihan Company",
+			Description: "This is my company",
+			Address:     "Jl. Kehidupan",
+			CreateBy:    userID,
+			CreateDt:    now,
+			UpdateBy:    userID,
+			UpdateDt:    now,
+			DeleteBy:    "",
+			DeleteDt:    nil,
+		},
+	}
+	tx.Create(&companies)
+
+	usercompanies := []model.Usercompany{
+		{
+			UserID:           userID,
+			CompanyID:        companyID,
+			IsDefaultCompany: true,
+			IsCreator:        true,
+			CreateBy:         userID,
+			CreateDt:         now,
+			UpdateBy:         userID,
+			UpdateDt:         now,
+			DeleteBy:         "",
+			DeleteDt:         nil,
+		},
+	}
+	tx.Create(&usercompanies)
 
 	err = tx.Commit().Error
 	if err != nil {

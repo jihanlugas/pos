@@ -50,6 +50,29 @@ func (CompanyView) TableName() string {
 	return VIEW_COMPANY
 }
 
+type UsercompanyView struct {
+	ID               string     `json:"id"`
+	UserID           string     `json:"userId"`
+	CompanyID        string     `json:"companyId"`
+	IsDefaultCompany bool       `json:"IsDefaultCompany"`
+	IsCreator        bool       `json:"IsCreator"`
+	CreateBy         string     `json:"createBy"`
+	CreateDt         time.Time  `json:"createDt"`
+	UpdateBy         string     `json:"updateBy"`
+	UpdateDt         time.Time  `json:"updateDt"`
+	DeleteBy         string     `json:"deleteBy"`
+	DeleteDt         *time.Time `json:"deleteDt"`
+	UserName         string     `json:"userName"`
+	CompanyName      string     `json:"companyName"`
+	CreateName       string     `json:"createName"`
+	UpdateName       string     `json:"updateName"`
+	DeleteName       string     `json:"deleteName"`
+}
+
+func (UsercompanyView) TableName() string {
+	return VIEW_USERCOMPANY
+}
+
 type ItemView struct {
 	ID          string     `json:"id"`
 	CompanyID   string     `json:"companyId"`

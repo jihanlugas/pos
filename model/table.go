@@ -35,6 +35,20 @@ type Company struct {
 	DeleteDt    *time.Time `gorm:"null"`
 }
 
+type Usercompany struct {
+	ID               string     `gorm:"primaryKey"`
+	UserID           string     `gorm:"not null"`
+	CompanyID        string     `gorm:"not null"`
+	IsDefaultCompany bool       `gorm:"not null"`
+	IsCreator        bool       `gorm:"not null"`
+	CreateBy         string     `gorm:"not null"`
+	CreateDt         time.Time  `gorm:"not null"`
+	UpdateBy         string     `gorm:"not null"`
+	UpdateDt         time.Time  `gorm:"not null"`
+	DeleteBy         string     `gorm:"not null"`
+	DeleteDt         *time.Time `gorm:"null"`
+}
+
 type Item struct {
 	ID          string     `gorm:"primaryKey"`
 	CompanyID   string     `gorm:"not null"`
