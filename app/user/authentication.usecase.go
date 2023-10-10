@@ -2,6 +2,8 @@ package user
 
 import (
 	"errors"
+	"github.com/jihanlugas/pos/app/company"
+	"github.com/jihanlugas/pos/app/usercompany"
 	"github.com/jihanlugas/pos/config"
 	"github.com/jihanlugas/pos/cryption"
 	"github.com/jihanlugas/pos/db"
@@ -19,13 +21,17 @@ type AuthenticationUsecase interface {
 }
 
 type usecaseAuthentication struct {
-	repo     AuthenticationRepository
-	userRepo Repository
+	repo            AuthenticationRepository
+	userRepo        Repository
+	companyRepo     company.Repository
+	usercompanyRepo usercompany.Repository
 }
 
 func (u usecaseAuthentication) SignIn(req *request.Signin) (string, error) {
 	var err error
 	var data model.User
+	var company model.Company
+	var usercompany model.Usercompany
 	var userLogin UserLogin
 
 	conn, closeConn := db.GetConnection()
@@ -50,6 +56,16 @@ func (u usecaseAuthentication) SignIn(req *request.Signin) (string, error) {
 		return "", errors.New("user not active")
 	}
 
+	usercompany, err = u.usercompanyRepo.GetCompanyDefaultByUserId(conn, data.ID)
+	if err != nil {
+		return "", errors.New("usercompany not found")
+	}
+
+	company, err = u.companyRepo.GetById(conn, usercompany.CompanyID)
+	if err != nil {
+		return "", errors.New("company not found")
+	}
+
 	now := time.Now()
 	tx := conn.Begin()
 
@@ -70,6 +86,8 @@ func (u usecaseAuthentication) SignIn(req *request.Signin) (string, error) {
 	userLogin.UserID = data.ID
 	userLogin.RoleID = data.RoleID
 	userLogin.PassVersion = data.PassVersion
+	userLogin.CompanyID = company.ID
+	userLogin.UsercompanyID = usercompany.ID
 	token, err := CreateToken(userLogin, expiredAt)
 	if err != nil {
 		return "", err

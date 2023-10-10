@@ -15,9 +15,11 @@ import (
 )
 
 type UserLogin struct {
-	UserID      string
-	RoleID      string
-	PassVersion int
+	UserID        string
+	RoleID        string
+	PassVersion   int
+	CompanyID     string
+	UsercompanyID string
 }
 
 func CreateToken(userLogin UserLogin, expiredAt time.Time) (string, error) {
@@ -25,7 +27,7 @@ func CreateToken(userLogin UserLogin, expiredAt time.Time) (string, error) {
 
 	now := time.Now()
 	expiredUnix := expiredAt.Unix()
-	subject := fmt.Sprintf("%s$$%s$$%d$$%d", userLogin.UserID, userLogin.RoleID, userLogin.PassVersion, expiredUnix)
+	subject := fmt.Sprintf("%s$$%s$$%d$$%s$$%s$$%d", userLogin.UserID, userLogin.RoleID, userLogin.PassVersion, userLogin.CompanyID, userLogin.UsercompanyID, expiredUnix)
 	jwtKey := []byte(config.JwtSecretKey)
 	claims := jwt.MapClaims{
 		"iss": "Services",
@@ -62,7 +64,7 @@ func ExtractClaims(header string) (UserLogin, error) {
 		return userlogin, err
 	}
 
-	expiredUnix, err := strconv.ParseInt(contentData[3], 10, 64)
+	expiredUnix, err := strconv.ParseInt(contentData[5], 10, 64)
 	if err != nil {
 		return userlogin, err
 	}
@@ -80,9 +82,11 @@ func ExtractClaims(header string) (UserLogin, error) {
 	}
 
 	userlogin = UserLogin{
-		UserID:      contentData[0],
-		RoleID:      contentData[1],
-		PassVersion: passVersion,
+		UserID:        contentData[0],
+		RoleID:        contentData[1],
+		PassVersion:   passVersion,
+		CompanyID:     contentData[3],
+		UsercompanyID: contentData[4],
 	}
 
 	return userlogin, err
