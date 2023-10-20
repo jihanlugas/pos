@@ -73,6 +73,11 @@ func up() {
 	defer closeConn()
 
 	// table
+
+	err = conn.Migrator().AutoMigrate(&model.Log{})
+	if err != nil {
+		panic(err)
+	}
 	err = conn.Migrator().AutoMigrate(&model.User{})
 	if err != nil {
 		panic(err)

@@ -56,15 +56,15 @@ func (u usecaseAuthentication) SignIn(req *request.Signin) (string, error) {
 		return "", errors.New("user not active")
 	}
 
-	usercompany, err = u.usercompanyRepo.GetCompanyDefaultByUserId(conn, data.ID)
-	if err != nil {
-		return "", errors.New("usercompany not found")
-	}
-
-	company, err = u.companyRepo.GetById(conn, usercompany.CompanyID)
-	if err != nil {
-		return "", errors.New("company not found")
-	}
+	//usercompany, err = u.usercompanyRepo.GetCompanyDefaultByUserId(conn, data.ID)
+	//if err != nil {
+	//	return "", errors.New("usercompany not found")
+	//}
+	//
+	//company, err = u.companyRepo.GetById(conn, usercompany.CompanyID)
+	//if err != nil {
+	//	return "", errors.New("company not found")
+	//}
 
 	now := time.Now()
 	tx := conn.Begin()

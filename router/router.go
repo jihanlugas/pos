@@ -1,6 +1,7 @@
 package router
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/jihanlugas/pos/app/app"
@@ -14,12 +15,14 @@ import (
 	"github.com/jihanlugas/pos/response"
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
+	"io"
 	"net/http"
 )
 
 func Init() *echo.Echo {
-	router := websiteRouter()
+	r := websiteRouter()
 	checkToken := checkTokenMiddleware()
+	log := logMiddleware()
 
 	//userController := controller.UserComposer()
 	//
@@ -41,6 +44,8 @@ func Init() *echo.Echo {
 	authenticationHandler := user.NewAuthenticationHandler(authenticationUsecase)
 	userHandler := user.UserHandler(userUsecase)
 	itemHandler := item.ItemHandler(itemUsecase)
+
+	router := r.Group("", log)
 
 	router.GET("/swg/*", echoSwagger.WrapHandler)
 	router.GET("/", app.Ping)
@@ -65,7 +70,7 @@ func Init() *echo.Echo {
 	itemRouter.DELETE("/:id", itemHandler.Delete, checkToken)
 	itemRouter.GET("/page", itemHandler.Page, checkToken)
 
-	return router
+	return r
 
 }
 
@@ -110,6 +115,18 @@ func httpErrorHandler(err error, c echo.Context) {
 	} else {
 		b := []byte("{error: true, message: \"unresolved error\"}")
 		_ = c.Blob(code, echo.MIMEApplicationJSONCharsetUTF8, b)
+	}
+}
+
+func logMiddleware() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			body, _ := io.ReadAll(c.Request().Body)
+			c.Set(constant.RequestBodyContext, string(body))
+			c.Request().Body = io.NopCloser(bytes.NewBuffer(body))
+
+			return next(c)
+		}
 	}
 }
 

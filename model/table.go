@@ -2,6 +2,16 @@ package model
 
 import "time"
 
+type Log struct {
+	ID        string    `gorm:"primaryKey"`
+	Path      string    `gorm:"not null"`
+	Loginuser string    `gorm:"not null"`
+	Message   string    `gorm:"not null"`
+	Request   string    `gorm:"not null"`
+	Response  string    `gorm:"not null"`
+	CreateDt  time.Time `gorm:"not null"`
+}
+
 type User struct {
 	ID          string     `gorm:"primaryKey"`
 	RoleID      string     `gorm:"not null"`

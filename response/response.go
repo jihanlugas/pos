@@ -2,7 +2,10 @@ package response
 
 import (
 	"encoding/json"
+	"github.com/jihanlugas/pos/constant"
+	"github.com/jihanlugas/pos/log"
 	"github.com/labstack/echo/v4"
+	"strings"
 )
 
 // SuccessResponse type for Success Response
@@ -49,20 +52,20 @@ func ErrorForce(code int, msg string, payload Payload) *Response {
 
 func (r *Response) SendJSON(c echo.Context) error {
 	//return sendJSON(c, r, r.Code)
+	go func(c echo.Context) {
+		loginUser, _ := c.Get(constant.TokenUserContext).(string)
+		request, _ := c.Get(constant.RequestBodyContext).(string)
+		response, _ := json.Marshal(r)
+
+		log.AddLog(c.Request().URL.Path, loginUser, string(response), strings.TrimSpace(request), string(response))
+	}(c)
+
 	if js, err := json.Marshal(r); err != nil {
 		panic(err)
 	} else {
 		return c.Blob(r.Code, echo.MIMEApplicationJSONCharsetUTF8, js)
 	}
 }
-
-//func sendJSON(c echo.Context, i interface{}, httpStatus int) error {
-//	if js, err := json.Marshal(i); err != nil {
-//		panic(err)
-//	} else {
-//		return c.Blob(httpStatus, echo.MIMEApplicationJSONCharsetUTF8, js)
-//	}
-//}
 
 func ValidationError(err error) *Payload {
 	return &Payload{
