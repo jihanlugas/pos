@@ -4,6 +4,7 @@ import "time"
 
 type Log struct {
 	ID        string    `gorm:"primaryKey"`
+	Method    string    `gorm:"not null"`
 	Path      string    `gorm:"not null"`
 	Loginuser string    `gorm:"not null"`
 	Message   string    `gorm:"not null"`

@@ -145,7 +145,20 @@ func loggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		// Log outgoing response
-		fmt.Println("Outgoing Response: ", string(c.Get(constant.Response).([]byte)))
+		fmt.Println("Method: ", c.Request().Method)
+		fmt.Println("Path: ", c.Request().URL.Host)
+		fmt.Println("Path: ", c.Request().URL.Opaque)
+		fmt.Println("Path: ", c.Request().URL.Path)
+		fmt.Println("Path: ", c.Request().RequestURI)
+		fmt.Println("Path: ", c.Request().URL.RawQuery)
+		fmt.Println("Path: ", c.Request().URL.RawPath)
+		fmt.Println("Path: ", c.Request().URL.RawFragment)
+		fmt.Println("Path: ", c.Request().URL.EscapedPath())
+		fmt.Println("Path: ", c.Request().Host)
+		fmt.Println("Path: ", c.Request().URL.RequestURI())
+		fmt.Println("Path: ", c.Request().URL.String())
+		fmt.Println("Request: ", string(body))
+		fmt.Println("Response: ", string(c.Get(constant.Response).([]byte)))
 
 		return nil
 	}
