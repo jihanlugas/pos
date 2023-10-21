@@ -11,12 +11,12 @@ import (
 	"github.com/jihanlugas/pos/constant"
 	"github.com/jihanlugas/pos/db"
 	_ "github.com/jihanlugas/pos/docs"
+	"github.com/jihanlugas/pos/log"
 	"github.com/jihanlugas/pos/model"
 	"github.com/jihanlugas/pos/response"
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"io"
-	"log"
 	"net/http"
 )
 
@@ -44,12 +44,12 @@ func Init() *echo.Echo {
 	userHandler := user.UserHandler(userUsecase)
 	itemHandler := item.ItemHandler(itemUsecase)
 
-	router.Use(loggerMiddleware)
-
 	//router.Use(logMiddleware)
 
 	router.GET("/swg/*", echoSwagger.WrapHandler)
 	router.GET("/", app.Ping)
+
+	router.Use(loggerMiddleware)
 
 	router.POST("/sign-in", authenticationHandler.SignIn)
 	router.GET("/sign-out", authenticationHandler.SignOut)
@@ -131,10 +131,7 @@ func logMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 func loggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		// Log incoming request
-		log.Printf("Incoming Request: %s %s", c.Request().Method, c.Request().URL.String())
-		fmt.Println("Incoming Request: ", c.Request().Body)
-
+		var err error
 		body, _ := io.ReadAll(c.Request().Body)
 		c.Set(constant.Request, string(body))
 		c.Request().Body = io.NopCloser(bytes.NewBuffer(body))
@@ -144,21 +141,29 @@ func loggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			c.Error(err)
 		}
 
-		// Log outgoing response
-		fmt.Println("Method: ", c.Request().Method)
-		fmt.Println("Path: ", c.Request().URL.Host)
-		fmt.Println("Path: ", c.Request().URL.Opaque)
-		fmt.Println("Path: ", c.Request().URL.Path)
-		fmt.Println("Path: ", c.Request().RequestURI)
-		fmt.Println("Path: ", c.Request().URL.RawQuery)
-		fmt.Println("Path: ", c.Request().URL.RawPath)
-		fmt.Println("Path: ", c.Request().URL.RawFragment)
-		fmt.Println("Path: ", c.Request().URL.EscapedPath())
-		fmt.Println("Path: ", c.Request().Host)
-		fmt.Println("Path: ", c.Request().URL.RequestURI())
-		fmt.Println("Path: ", c.Request().URL.String())
-		fmt.Println("Request: ", string(body))
-		fmt.Println("Response: ", string(c.Get(constant.Response).([]byte)))
+		res := ""
+		if c.Get(constant.Response) != nil {
+			res = string(c.Get(constant.Response).([]byte))
+		}
+
+		loginUserString := ""
+		loginUser, err := user.GetUserLoginInfo(c)
+		if err == nil {
+			loginUserByte, _ := json.Marshal(loginUser)
+			loginUserString = string(loginUserByte)
+		}
+
+		logData := model.Log{
+			ClientIP:  c.Request().RemoteAddr,
+			Method:    c.Request().Method,
+			Path:      c.Request().URL.String(),
+			Code:      c.Response().Status,
+			Loginuser: loginUserString,
+			Request:   string(body),
+			Response:  res,
+		}
+
+		go log.AddLog(logData)
 
 		return nil
 	}

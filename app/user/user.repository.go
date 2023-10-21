@@ -118,7 +118,7 @@ func (r repositoryUser) GetViewByNoHp(conn *gorm.DB, noHp string) (model.UserVie
 }
 
 func (r repositoryUser) Create(conn *gorm.DB, data model.User) error {
-	conn.Save(&data)
+	conn.Create(&data)
 
 	return nil
 }

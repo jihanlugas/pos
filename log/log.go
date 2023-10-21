@@ -7,20 +7,13 @@ import (
 	"time"
 )
 
-func AddLog(path, loginuser, meessage, request, response string) {
+func AddLog(log model.Log) {
 
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
-	log := model.Log{
-		ID:        utils.GetUniqueID(),
-		Path:      path,
-		Loginuser: loginuser,
-		Message:   meessage,
-		Request:   request,
-		Response:  response,
-		CreateDt:  time.Now(),
-	}
+	log.ID = utils.GetUniqueID()
+	log.CreateDt = time.Now()
 
-	conn.Save(&log)
+	conn.Create(&log)
 }

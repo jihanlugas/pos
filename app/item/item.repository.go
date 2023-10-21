@@ -36,7 +36,7 @@ func (r repositoryItem) GetViewById(conn *gorm.DB, id string) (model.ItemView, e
 }
 
 func (r repositoryItem) Create(conn *gorm.DB, data model.Item) error {
-	conn.Save(&data)
+	conn.Create(&data)
 
 	return nil
 }
