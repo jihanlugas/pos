@@ -16,13 +16,12 @@ import (
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"io"
+	"log"
 	"net/http"
 )
 
 func Init() *echo.Echo {
-	r := websiteRouter()
-	checkToken := checkTokenMiddleware()
-	log := logMiddleware()
+	router := websiteRouter()
 
 	//userController := controller.UserComposer()
 	//
@@ -45,7 +44,9 @@ func Init() *echo.Echo {
 	userHandler := user.UserHandler(userUsecase)
 	itemHandler := item.ItemHandler(itemUsecase)
 
-	router := r.Group("", log)
+	router.Use(loggerMiddleware)
+
+	//router.Use(logMiddleware)
 
 	router.GET("/swg/*", echoSwagger.WrapHandler)
 	router.GET("/", app.Ping)
@@ -53,24 +54,24 @@ func Init() *echo.Echo {
 	router.POST("/sign-in", authenticationHandler.SignIn)
 	router.GET("/sign-out", authenticationHandler.SignOut)
 	router.POST("/sign-up", authenticationHandler.SignUp)
-	router.GET("/refresh-token", authenticationHandler.RefreshToken, checkToken)
+	router.GET("/refresh-token", authenticationHandler.RefreshToken, checkTokenMiddleware)
 	router.GET("/reset-password", authenticationHandler.ResetPassword)
 
 	userRouter := router.Group("/user")
 	userRouter.GET("/:id", userHandler.GetById)
-	userRouter.POST("", userHandler.Create, checkToken)
-	userRouter.PUT("/:id", userHandler.Update, checkToken)
-	userRouter.DELETE("/:id", userHandler.Delete, checkToken)
-	userRouter.GET("/page", userHandler.Page, checkToken)
+	userRouter.POST("", userHandler.Create, checkTokenMiddleware)
+	userRouter.PUT("/:id", userHandler.Update, checkTokenMiddleware)
+	userRouter.DELETE("/:id", userHandler.Delete, checkTokenMiddleware)
+	userRouter.GET("/page", userHandler.Page, checkTokenMiddleware)
 
 	itemRouter := router.Group("/item")
 	itemRouter.GET("/:id", itemHandler.GetById)
-	itemRouter.POST("", itemHandler.Create, checkToken)
-	itemRouter.PUT("/:id", itemHandler.Update, checkToken)
-	itemRouter.DELETE("/:id", itemHandler.Delete, checkToken)
-	itemRouter.GET("/page", itemHandler.Page, checkToken)
+	itemRouter.POST("", itemHandler.Create, checkTokenMiddleware)
+	itemRouter.PUT("/:id", itemHandler.Update, checkTokenMiddleware)
+	itemRouter.DELETE("/:id", itemHandler.Delete, checkTokenMiddleware)
+	itemRouter.GET("/page", itemHandler.Page, checkTokenMiddleware)
 
-	return r
+	return router
 
 }
 
@@ -118,43 +119,61 @@ func httpErrorHandler(err error, c echo.Context) {
 	}
 }
 
-func logMiddleware() echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			body, _ := io.ReadAll(c.Request().Body)
-			c.Set(constant.RequestBodyContext, string(body))
-			c.Request().Body = io.NopCloser(bytes.NewBuffer(body))
+func logMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		body, _ := io.ReadAll(c.Request().Body)
+		c.Set(constant.Request, string(body))
+		c.Request().Body = io.NopCloser(bytes.NewBuffer(body))
 
-			return next(c)
-		}
+		return next(c)
 	}
 }
 
-func checkTokenMiddleware() echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			var err error
+func loggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// Log incoming request
+		log.Printf("Incoming Request: %s %s", c.Request().Method, c.Request().URL.String())
+		fmt.Println("Incoming Request: ", c.Request().Body)
 
-			userLogin, err := user.ExtractClaims(c.Request().Header.Get(config.HeaderAuthName))
-			if err != nil {
-				return response.ErrorForce(http.StatusUnauthorized, err.Error(), response.Payload{}).SendJSON(c)
-			}
+		body, _ := io.ReadAll(c.Request().Body)
+		c.Set(constant.Request, string(body))
+		c.Request().Body = io.NopCloser(bytes.NewBuffer(body))
 
-			conn, closeConn := db.GetConnection()
-			defer closeConn()
-
-			var user model.User
-			err = conn.Where("id = ? ", userLogin.UserID).First(&user).Error
-			if err != nil {
-				return response.ErrorForce(http.StatusUnauthorized, "Token Expired!", response.Payload{}).SendJSON(c)
-			}
-
-			if user.PassVersion != userLogin.PassVersion {
-				return response.ErrorForce(http.StatusUnauthorized, "Token Expired~", response.Payload{}).SendJSON(c)
-			}
-
-			c.Set(constant.TokenUserContext, userLogin)
-			return next(c)
+		// Call next handler
+		if err := next(c); err != nil {
+			c.Error(err)
 		}
+
+		// Log outgoing response
+		fmt.Println("Outgoing Response: ", string(c.Get(constant.Response).([]byte)))
+
+		return nil
+	}
+}
+
+func checkTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var err error
+
+		userLogin, err := user.ExtractClaims(c.Request().Header.Get(config.HeaderAuthName))
+		if err != nil {
+			return response.ErrorForce(http.StatusUnauthorized, err.Error(), response.Payload{}).SendJSON(c)
+		}
+
+		conn, closeConn := db.GetConnection()
+		defer closeConn()
+
+		var user model.User
+		err = conn.Where("id = ? ", userLogin.UserID).First(&user).Error
+		if err != nil {
+			return response.ErrorForce(http.StatusUnauthorized, "Token Expired!", response.Payload{}).SendJSON(c)
+		}
+
+		if user.PassVersion != userLogin.PassVersion {
+			return response.ErrorForce(http.StatusUnauthorized, "Token Expired~", response.Payload{}).SendJSON(c)
+		}
+
+		c.Set(constant.TokenUserContext, userLogin)
+		return next(c)
 	}
 }

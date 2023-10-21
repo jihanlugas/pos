@@ -5,9 +5,10 @@ package constant
 // 8 int8 migration
 // 24 string
 const (
-	RequestBodyContext = "request"
-	TokenUserContext   = "usr"
-	TokenContentLen    = 6
-	FormatDateLayout   = "2006-01-02"
-	BearerSchema       = "Bearer"
+	Request          = "request"
+	Response         = "response"
+	TokenUserContext = "usr"
+	TokenContentLen  = 6
+	FormatDateLayout = "2006-01-02"
+	BearerSchema     = "Bearer"
 )
