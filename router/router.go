@@ -45,11 +45,10 @@ func Init() *echo.Echo {
 	itemHandler := item.ItemHandler(itemUsecase)
 
 	//router.Use(logMiddleware)
+	router.Use(loggerMiddleware)
 
 	router.GET("/swg/*", echoSwagger.WrapHandler)
 	router.GET("/", app.Ping)
-
-	router.Use(loggerMiddleware)
 
 	router.POST("/sign-in", authenticationHandler.SignIn)
 	router.GET("/sign-out", authenticationHandler.SignOut)
